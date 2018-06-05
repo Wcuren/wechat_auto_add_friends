@@ -11,12 +11,9 @@ import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
 import android.util.Log;
-import android.widget.Toast;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -46,60 +43,37 @@ public class ExampleInstrumentedTest {
             e.printStackTrace();
         }
         mDevice.pressHome();
-        final ContactsModel[] contacts = getContacts();
-        if (contacts == null || contacts.length < 1) {
-            Toast.makeText(mContext, "没有获取到联系人！", Toast.LENGTH_LONG).show();
-            return;
-        }
-        Log.d(TAG, "contcts size is:" + contacts.length);
         Intent intent = mContext.getPackageManager().getLaunchIntentForPackage(APP);
         mContext.startActivity(intent);
-        cycleAddFriend(contacts);
+        cycleAddFriend();
     }
 
-    private void cycleAddFriend(ContactsModel[] contacts) {
-        for (int i = 0; i < contacts.length; i++) {
-            try {
-                while (!isWeixinHome()) {
-                    mDevice.pressBack();
-                }
-                if (!"1".equals(contacts[i].getStatus())) {
-                    continue;
-                }
-                UiObject addButton = mDevice.findObject(new UiSelector().description("更多功能按钮"));
-                addButton.clickAndWaitForNewWindow();
-                UiObject addObject = mDevice.findObject(new UiSelector().text("添加朋友"));
-                addObject.clickAndWaitForNewWindow();
-                UiObject textObject = mDevice.findObject(new UiSelector().text("微信号/QQ号/手机号"));
-                textObject.clickAndWaitForNewWindow();
-//                UiObject editObject = mDevice.findObject(new UiSelector().resourceId("com.tencent.mm:id/hx"));
-                UiObject editObject = mDevice.findObject(new UiSelector().className("android.widget.EditText"));
-                editObject.setText(contacts[i].getName());
-//                UiObject resultObject = mDevice.findObject(new UiSelector().resourceId("com.tencent.mm:id/l4"));
-                UiObject resultObject = mDevice.findObject(new UiSelector().textContains("搜索"));
-                resultObject.clickAndWaitForNewWindow();
-                UiObject resultAddObject = mDevice.findObject(new UiSelector().text("添加到通讯录"));
-                resultAddObject.clickAndWaitForNewWindow();
-//                UiObject messageObject = mDevice.findObject(new UiSelector().resourceId("com.tencent.mm:id/cz9"));
-                UiObject messageObject = mDevice.findObject(new UiSelector().textContains("你需要发送")
-                        .fromParent(new UiSelector().className("android.widget.EditText")));
-                messageObject.setText("你好！");
-                UiObject sendObject = mDevice.findObject(new UiSelector().text("发送"));
-                sendObject.clickAndWaitForNewWindow();
-
-                Map<String, String> map = new HashMap<String, String>();
-                map.put("id", contacts[i].getId());
-                map.put("status", contacts[i].getStatus());
-                String response = HttpUtil.post(map);
-                Log.d(TAG, "Id :" + contacts[i] + ";response is :" + response);
-            } catch (UiObjectNotFoundException e) {
-                e.printStackTrace();
-                continue;
-            } catch (IOException e) {
-                e.printStackTrace();
-                continue;
+    private void cycleAddFriend() {
+        try {
+            while (!isWeixinHome()) {
+                mDevice.pressBack();
             }
+            UiObject addButton = mDevice.findObject(new UiSelector().description("更多功能按钮"));
+            addButton.clickAndWaitForNewWindow();
+            UiObject addObject = mDevice.findObject(new UiSelector().text("添加朋友"));
+            addObject.clickAndWaitForNewWindow();
+            UiObject textObject = mDevice.findObject(new UiSelector().text("微信号/QQ号/手机号"));
+            textObject.clickAndWaitForNewWindow();
+            UiObject editObject = mDevice.findObject(new UiSelector().className("android.widget.EditText"));
+            editObject.setText("1111");
+            UiObject resultObject = mDevice.findObject(new UiSelector().textContains("搜索"));
+            resultObject.clickAndWaitForNewWindow();
+            UiObject resultAddObject = mDevice.findObject(new UiSelector().text("添加到通讯录"));
+            resultAddObject.clickAndWaitForNewWindow();
+            UiObject messageObject = mDevice.findObject(new UiSelector().textContains("你需要发送")
+                    .fromParent(new UiSelector().className("android.widget.EditText")));
+            messageObject.setText("111");
+            UiObject sendObject = mDevice.findObject(new UiSelector().text("发送"));
+            sendObject.clickAndWaitForNewWindow();
+        } catch (UiObjectNotFoundException e) {
+            e.printStackTrace();
         }
+
     }
 
     private boolean isWeixinHome() {
@@ -124,14 +98,5 @@ public class ExampleInstrumentedTest {
             e.printStackTrace();
         }
         return false;
-    }
-
-    private ContactsModel[] getContacts() {
-        try {
-            return JsonUtil.get(HttpUtil.get());
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }
